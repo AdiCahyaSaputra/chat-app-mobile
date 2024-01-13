@@ -9,6 +9,8 @@ interface UserStore {
   setUser: (user: IUser) => void;
   friends: TContactsData[] | [];
   setFriends: (friends: TContactsData[] | []) => void;
+  refetchFriends: boolean;
+  setRefetchFriends: (refetchFriends: boolean) => void;
 }
 
 export const useUserStore = create<UserStore>()(
@@ -18,6 +20,8 @@ export const useUserStore = create<UserStore>()(
       setUser: user => set({ user }),
       friends: [],
       setFriends: friends => set({ friends }),
+      refetchFriends: false,
+      setRefetchFriends: refetchFriends => set({ refetchFriends }),
     }),
     {
       name: 'user-storage',

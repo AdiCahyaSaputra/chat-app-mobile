@@ -37,7 +37,7 @@ const Login = ({
             })
               .then(res => {
                 console.log('Set Token storage : ', res);
-                navigation.navigate('Home');
+                navigation.push('Home');
               })
               .catch(err => console.error('Set Token storage : ', err));
           }

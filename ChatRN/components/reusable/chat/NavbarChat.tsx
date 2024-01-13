@@ -1,13 +1,14 @@
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootNativeStackParamList } from '../../../App';
+import ProfileImage from '../global/ProfileImage';
 
 type Props = {
   name: string;
   username: string;
-  profileImageUrl: string;
+  profileImageUrl: string | null;
 };
 
 const NavbarChat = ({ name, username, profileImageUrl }: Props) => {
@@ -24,10 +25,11 @@ const NavbarChat = ({ name, username, profileImageUrl }: Props) => {
         <Text className="text-white font-bold">Back</Text>
       </TouchableOpacity>
       <View className="flex flex-row items-center space-x-4">
-        <View className="overflow-hidden rounded-full">
-          <Image
-            source={require('../../../assets/image/user.jpeg')}
-            className="w-[60px] h-[60px]"
+        <View className="overflow-hidden rounded-md">
+          <ProfileImage
+            profile_image_url={profileImageUrl}
+            width={60}
+            height={60}
           />
         </View>
 

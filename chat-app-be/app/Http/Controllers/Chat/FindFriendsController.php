@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Chat;
 
 use App\Helper\ResponseHelper;
 use App\Http\Controllers\Controller;
-use App\Models\Contact;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;

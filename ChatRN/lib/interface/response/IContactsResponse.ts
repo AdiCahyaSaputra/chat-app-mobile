@@ -12,4 +12,5 @@ export type TContactsData = {
   contact_profile_image: string;
   latest_message: string | null;
   latest_message_timestamp: string | null;
+  unread_messages: number;
 };

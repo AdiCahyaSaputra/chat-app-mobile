@@ -3,6 +3,8 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Chat\FindFriendsController;
+use App\Http\Controllers\Chat\MessagesController;
+use App\Http\Controllers\Chat\RequestedChatController;
 use App\Http\Controllers\Chat\UserContactController;
 use App\Http\Controllers\User\EditProfileController;
 use App\Http\Controllers\User\UploadImageController;
@@ -43,4 +45,9 @@ Route::prefix('v1')->group(function () {
   Route::post('/friends', [FindFriendsController::class, 'store'])->middleware('auth:sanctum');
 
   Route::get('/chat/contacts', [UserContactController::class, 'show'])->middleware('auth:sanctum');
+  Route::get('/chat/message/{receiver_id}', [MessagesController::class, 'show'])->middleware('auth:sanctum');
+  Route::post('/chat/message', [MessagesController::class, 'store'])->middleware('auth:sanctum');
+
+  Route::get('/chat/request', [RequestedChatController::class, 'show'])->middleware('auth:sanctum');
+  Route::post('/chat/request/accept', [RequestedChatController::class, 'store'])->middleware('auth:sanctum');
 });

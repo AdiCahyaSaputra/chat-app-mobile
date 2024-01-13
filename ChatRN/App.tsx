@@ -16,7 +16,12 @@ export type RootNativeStackParamList = {
   Home: undefined;
   Profile: undefined;
   Search: undefined;
-  'Chat/Username': { username: string; name: string };
+  'Chat/Username': {
+    id: number;
+    username: string;
+    name: string;
+    profile_image_url: string | null;
+  };
 };
 
 const Stack = createNativeStackNavigator<RootNativeStackParamList>();

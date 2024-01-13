@@ -1,5 +1,5 @@
 import { View, FlatList, Text, TouchableOpacity, Image } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Seperator from '../components/reusable/global/Seperator';
 import Profile from '../components/section/home/Profile';
@@ -10,11 +10,15 @@ import { useUserStore } from '../lib/zustand/userStore';
 import IContactsResponse from '../lib/interface/response/IContactsResponse';
 import axios from '../lib/helper/axios.helper';
 import RNSecureStorage from 'rn-secure-storage';
+import { useMessagesStore } from '../lib/zustand/messagesStore';
 
 const Home = ({
   navigation,
 }: NativeStackScreenProps<RootNativeStackParamList, 'Home'>) => {
-  const { user, friends, setFriends } = useUserStore(state => state);
+  const { user, friends, setFriends, refetchFriends } = useUserStore(
+    state => state,
+  );
+  const messages = useMessagesStore(state => state.messages);
 
   useEffect(() => {
     const getContacts = async () => {
@@ -43,7 +47,7 @@ const Home = ({
     };
 
     getContacts();
-  }, [user]);
+  }, [user, messages, refetchFriends]);
 
   return (
     <SafeAreaView className="flex-1 dark:bg-black">

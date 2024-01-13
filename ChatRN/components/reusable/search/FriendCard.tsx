@@ -36,7 +36,9 @@ const FriendCard = ({ profile_image_url, username, name }: TSearchData) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootNativeStackParamList>>();
 
-  const { user, friends } = useUserStore(state => state);
+  const { user, friends, setRefetchFriends, refetchFriends } = useUserStore(
+    state => state,
+  );
 
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'error' | 'success'
@@ -73,6 +75,8 @@ const FriendCard = ({ profile_image_url, username, name }: TSearchData) => {
       console.log(err);
       setStatus('error');
     }
+
+    setRefetchFriends(!refetchFriends);
   };
 
   useEffect(() => {
