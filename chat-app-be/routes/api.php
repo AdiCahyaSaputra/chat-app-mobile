@@ -50,4 +50,5 @@ Route::prefix('v1')->group(function () {
 
   Route::get('/chat/request', [RequestedChatController::class, 'show'])->middleware('auth:sanctum');
   Route::post('/chat/request/accept', [RequestedChatController::class, 'store'])->middleware('auth:sanctum');
+  Route::post('/chat/request/block/{contact_id}', [RequestedChatController::class, 'destroy'])->middleware('auth:sanctum');
 });

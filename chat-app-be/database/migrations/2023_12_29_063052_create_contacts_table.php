@@ -15,6 +15,7 @@ return new class extends Migration
       $table->id();
       $table->foreignId('user_id')->references('id')->on('users');
       $table->foreignId('contact_user_id')->references('id')->on('users');
+      $table->boolean('is_blocked')->default(false);
       $table->unique(['user_id', 'contact_user_id']);
       $table->timestamps();
     });

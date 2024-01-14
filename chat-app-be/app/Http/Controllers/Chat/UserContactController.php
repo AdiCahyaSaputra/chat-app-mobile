@@ -42,7 +42,7 @@ class UserContactController extends Controller
             $contact->latest_message = $latest_message->latest_message;
             $contact->latest_message_timestamp = $latest_message->latest_message_timestamp;
 
-            if ($latest_message->is_read === false && $latest_message->sender_id === $contact->contact_user_id) {
+            if ($latest_message->is_read === false && $latest_message->sender_id !== $request->user()->id) {
               $contact->unread_messages++;
             }
           }

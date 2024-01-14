@@ -11,6 +11,7 @@ import IContactsResponse from '../lib/interface/response/IContactsResponse';
 import axios from '../lib/helper/axios.helper';
 import RNSecureStorage from 'rn-secure-storage';
 import { useMessagesStore } from '../lib/zustand/messagesStore';
+import { useNotificationStore } from '../lib/zustand/notificationStore';
 
 const Home = ({
   navigation,
@@ -18,7 +19,11 @@ const Home = ({
   const { user, friends, setFriends, refetchFriends } = useUserStore(
     state => state,
   );
+
   const messages = useMessagesStore(state => state.messages);
+  const { notifications, setNotifications } = useNotificationStore(
+    state => state,
+  );
 
   useEffect(() => {
     const getContacts = async () => {
@@ -46,6 +51,27 @@ const Home = ({
       }
     };
 
+    const getNotifications = async () => {
+      try {
+        const token = await RNSecureStorage.getItem('token');
+
+        if (!token) {
+          return navigation.navigate('Login');
+        }
+
+        const response = await axios.get('/api/v1/chat/request', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setNotifications(response.data.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    getNotifications();
     getContacts();
   }, [user, messages, refetchFriends]);
 
@@ -59,22 +85,34 @@ const Home = ({
           <Text className="mt-6 mb-2 text-white font-bold text-lg">
             Friends
           </Text>
-          {friends.length ? (
-            <FlatList
-              data={friends}
-              renderItem={({ item: friend }) => <ContactsCard {...friend} />}
-              keyExtractor={(_, idx) => idx.toString()}
-              contentContainerStyle={containerStyle}
-            />
-          ) : (
-            <View className="flex-1">
-              <Text>You have no friends</Text>
-            </View>
-          )}
-          <View>
+          <FlatList
+            data={friends}
+            renderItem={({ item: friend }) => <ContactsCard {...friend} />}
+            keyExtractor={(_, idx) => idx.toString()}
+            ListEmptyComponent={
+              <View className="flex-1">
+                <Text>You have no friends</Text>
+              </View>
+            }
+            contentContainerStyle={containerStyle}
+          />
+          <View className="flex flex-row items-center space-x-2">
             <TouchableOpacity
               activeOpacity={0.8}
-              className="bg-yellow-500/20 py-2 px-4 rounded-md flex flex-row items-center justify-between"
+              className="bg-white/20 py-2 px-2 rounded-md relative"
+              onPress={() => navigation.push('Notification')}
+            >
+              <Image
+                source={require('../assets/icon/NotificationIcon.png')}
+                className="w-5 h-5"
+              />
+              {notifications.length > 0 && (
+                <View className="absolute w-2 h-2 bg-red-600 rounded-full -top-1 -right-1" />
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              className="bg-yellow-500/20 py-2 px-4 rounded-md flex flex-row items-center justify-between flex-1"
               onPress={() => navigation.navigate('Search')}
             >
               <Text className="text-yellow-500 font-bold">
