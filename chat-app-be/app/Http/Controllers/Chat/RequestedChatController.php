@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Chat;
 
 use App\Helper\ResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Models\Contact;
 use App\Models\User;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -25,7 +26,8 @@ class RequestedChatController extends Controller
       $contacts = DB::table('contacts')
         ->join('users', 'contacts.user_id', '=', 'users.id')
         ->where('contacts.contact_user_id', $userId)
-        ->select('contacts.id', 'contacts.contact_user_id', 'users.username as contact_username', 'users.name as contact_name', 'users.profile_image_url as contact_profile_image')
+        ->where('contacts.is_blocked', false)
+        ->select('contacts.id', 'users.id as contact_user_id', 'users.username as contact_username', 'users.name as contact_name', 'users.profile_image_url as contact_profile_image')
         ->get();
 
       $latest_messages = DB::table('contacts')
@@ -57,8 +59,8 @@ class RequestedChatController extends Controller
 
   public function store(Request $request)
   {
-    $validator = Validator::make($request->only('username'), [
-      'username' => 'required|string|exists:users,username'
+    $validator = Validator::make($request->only('contact_user_id'), [
+      'contact_user_id' => 'required|exists:users,id'
     ]);
 
     if ($validator->fails()) {
@@ -66,16 +68,27 @@ class RequestedChatController extends Controller
     }
 
     try {
-      $user = User::where('username', $validator->getData('username'))->first('id');
-
       $addFriend = DB::table('contacts')->insert([
         'user_id' => $request->user()->id,
-        'contact_user_id' => $user->id
+        'contact_user_id' => $request->contact_user_id
       ]);
 
       return ResponseHelper::sendResponse(data: $addFriend);
     } catch (Exception $exception) {
       return ResponseHelper::sendResponse(500, $exception->getMessage());
+    }
+  }
+
+  public function destroy($contact_id)
+  {
+    try {
+      $blocked = Contact::where('id', $contact_id)->update([
+        'is_blocked' => true
+      ]);
+
+      return ResponseHelper::sendResponse(data: $blocked);
+    } catch (Exception $exception) {
+      return ResponseHelper::sendResponse(message: $exception->getMessage());
     }
   }
 }

@@ -23,3 +23,9 @@ Features:
 - Authentication
 - Search Friends
 - Tweak User Profile
+- Chat
+- Notification
+
+Todo:
+
+- [ ] Realtime chat

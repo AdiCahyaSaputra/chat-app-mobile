@@ -9,7 +9,7 @@ export type TContactsData = {
   contact_user_id: number;
   contact_username: string;
   contact_name: string;
-  contact_profile_image: string;
+  contact_profile_image: string | null;
   latest_message: string | null;
   latest_message_timestamp: string | null;
   unread_messages: number;

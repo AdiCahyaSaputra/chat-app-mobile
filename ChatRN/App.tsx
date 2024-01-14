@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Search from './pages/Search';
+import Notification from './pages/Notification';
 
 export type RootNativeStackParamList = {
   Login: undefined;
@@ -16,6 +17,7 @@ export type RootNativeStackParamList = {
   Home: undefined;
   Profile: undefined;
   Search: undefined;
+  Notification: undefined;
   'Chat/Username': {
     id: number;
     username: string;
@@ -70,6 +72,14 @@ const App = () => {
               headerShown: false,
             }}
             component={Search}
+          />
+          <Stack.Screen
+            name="Notification"
+            options={{
+              title: 'Notification',
+              headerShown: false,
+            }}
+            component={Notification}
           />
           <Stack.Screen
             name="Chat/Username"
