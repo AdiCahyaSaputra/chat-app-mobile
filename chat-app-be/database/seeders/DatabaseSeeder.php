@@ -32,5 +32,7 @@ class DatabaseSeeder extends Seeder
       'username' => 'jane',
       'password' => bcrypt('hehe1234')
     ]);
+
+    User::factory(10)->create();
   }
 }

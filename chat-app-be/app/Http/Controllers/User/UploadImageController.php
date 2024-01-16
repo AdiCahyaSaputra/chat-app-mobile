@@ -30,7 +30,7 @@ class UploadImageController extends Controller
 
       try {
         $uploaded = User::where('id', $request->user()->id)->update([
-          'profile_image_url' => 'storage/image/' . $_FILES['image']['name']
+          'profile_image_url' => 'storage/image/' . $request->user()->username . '-' . $_FILES['image']['name']
         ]);
 
         return ResponseHelper::sendResponse(data: $uploaded);

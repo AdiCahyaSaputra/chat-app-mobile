@@ -9,8 +9,9 @@ import RNSecureStorage from 'rn-secure-storage';
 import axios from '../../../lib/helper/axios.helper';
 import IBaseResponse from '../../../lib/interface/response/IBaseReponse';
 import { useUserStore } from '../../../lib/zustand/userStore';
+import { getStatus } from '../../../lib/helper/search.helper';
 
-const getAddFriendIcon = (status: 'idle' | 'loading' | 'error' | 'success') => {
+const getAddFriendIcon = (status: TStatus) => {
   const icon: { [key in typeof status]: any } = {
     idle: require('../../../assets/icon/AddFriendIcon.png'),
     loading: require('../../../assets/icon/AddFriendLoaderIcon.png'),
@@ -21,8 +22,8 @@ const getAddFriendIcon = (status: 'idle' | 'loading' | 'error' | 'success') => {
   return icon[status];
 };
 
-const getBgIcon = (status: 'idle' | 'loading' | 'error' | 'success') => {
-  const bg: { [key in typeof status]: any } = {
+const getBgIcon = (status: TStatus) => {
+  const bg: { [key in typeof status]: string } = {
     idle: 'bg-yellow-500/20',
     loading: 'bg-white/20',
     error: 'bg-red-600/20',
@@ -32,17 +33,17 @@ const getBgIcon = (status: 'idle' | 'loading' | 'error' | 'success') => {
   return bg[status];
 };
 
+type TStatus = 'idle' | 'loading' | 'error' | 'success';
+
 const FriendCard = ({ profile_image_url, username, name }: TSearchData) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootNativeStackParamList>>();
 
-  const { user, friends, setRefetchFriends, refetchFriends } = useUserStore(
+  const { friends, user, setRefetchFriends, refetchFriends } = useUserStore(
     state => state,
   );
 
-  const [status, setStatus] = useState<
-    'idle' | 'loading' | 'error' | 'success'
-  >('idle');
+  const [status, setStatus] = useState<TStatus>('idle');
 
   const handleAddFriend = async () => {
     setStatus('loading');
@@ -80,13 +81,7 @@ const FriendCard = ({ profile_image_url, username, name }: TSearchData) => {
   };
 
   useEffect(() => {
-    if (friends.find(friend => friend.contact_username === username)) {
-      setStatus('success');
-    }
-
-    if (username === user?.username) {
-      setStatus('error');
-    }
+    setStatus(getStatus(username, friends, user));
   }, [username]);
 
   return (
