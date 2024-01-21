@@ -78,7 +78,7 @@ class UserContactController extends Controller
 
       $contact->latest_message = $filteredContact->first();
       $contact->unread_messages = $filteredContact->filter(function ($message) use ($userId) {
-        return $message->sender_id !== $userId;
+        return $message->sender_id !== $userId && $message->is_read === false;
       })->count();
     }
 

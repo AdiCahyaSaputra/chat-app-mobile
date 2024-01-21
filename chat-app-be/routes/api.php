@@ -48,6 +48,8 @@ Route::prefix('v1')->group(function () {
   Route::get('/chat/message/{room_id}', [MessagesController::class, 'show'])->middleware('auth:sanctum');
   Route::post('/chat/message', [MessagesController::class, 'store'])->middleware('auth:sanctum');
 
+  Route::put('/chat/message/{room_id}', [MessagesController::class, 'read'])->middleware('auth:sanctum');
+
   Route::get('/chat/request', [RequestedChatController::class, 'show'])->middleware('auth:sanctum');
   Route::post('/chat/request/accept', [RequestedChatController::class, 'store'])->middleware('auth:sanctum');
   Route::post('/chat/request/block/{room_id}', [RequestedChatController::class, 'destroy'])->middleware('auth:sanctum');

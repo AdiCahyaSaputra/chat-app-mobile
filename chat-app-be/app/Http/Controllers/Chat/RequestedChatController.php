@@ -59,8 +59,8 @@ class RequestedChatController extends Controller
 
     $messages = DB::table('room_user')
       ->join('messages', 'messages.room_id', 'room_user.room_id')
-      ->where('room_user.room_id', function (Builder $query) use ($userId) {
-        $query->select('room_id')->from('room_user')->where('user_id', $userId)->first();
+      ->whereIn('room_user.room_id', function (Builder $query) use ($userId) {
+        $query->select('room_id')->from('room_user')->where('user_id', $userId);
       })
       ->select(
         'room_user.room_id',

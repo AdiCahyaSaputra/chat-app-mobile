@@ -68,4 +68,19 @@ class MessagesController extends Controller
       return ResponseHelper::sendResponse(message: $exception->getMessage(), status: 500);
     }
   }
+
+  public function read($room_id)
+  {
+    try {
+      $readAll = DB::table('messages')
+        ->where('messages.room_id', $room_id)
+        ->update([
+          'is_read' => true
+        ]);
+
+      return ResponseHelper::sendResponse(data: $readAll);
+    } catch (Exception $exception) {
+      return ResponseHelper::sendResponse(500, $exception->getMessage());
+    }
+  }
 }
