@@ -29,4 +29,4 @@ Features:
 Todo:
 
 - [ ] Realtime chat
-- [ ] use room chat instead of message.sender_id and message.receiver_id
+- [x] use room chat instead of message.sender_id and message.receiver_id

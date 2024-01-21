@@ -7,30 +7,30 @@ use App\Http\Controllers\Controller;
 use App\Models\Message;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class MessagesController extends Controller
 {
-  public function show($receiver_id, Request $request)
+  public function show($room_id, Request $request)
   {
-    $user_id = $request->user()->id;
-
-    $messages = DB::table('messages')
-      ->join('users as senders', 'senders.id', 'messages.sender_id')
-      ->join('users as receivers', 'receivers.id', 'messages.receiver_id')
-      ->when(function (Builder $query) use ($receiver_id, $user_id) {
-        $query->where('receivers.id', $receiver_id)
-          ->orWhere('receivers.id', $user_id);
-      })
-      ->when($receiver_id, function (Builder $query) {
-        $query->select('receivers.profile_image_url', 'senders.username as sender', 'messages.content as message', 'messages.created_at as date');
-      })
-      ->when($user_id, function (Builder $query) {
-        $query->select('senders.profile_image_url', 'senders.username as sender', 'messages.content as message', 'messages.created_at as date');
-      })
+    $messages = DB::table('room_user')
+      ->join('rooms', 'rooms.id', 'room_user.room_id')
+      ->join('messages', 'messages.room_id', 'rooms.id')
+      ->join('users', 'users.id', 'messages.sender_id')
+      ->where('rooms.id', $room_id)
+      ->where('room_user.user_id', $request->user()->id)
+      ->select(
+        'rooms.id as room_id',
+        'rooms.is_blocked',
+        'users.username as sender',
+        'users.profile_image_url as profile_image_url',
+        'messages.id as message_id',
+        'messages.content',
+        'messages.is_read',
+        'messages.created_at as date',
+      )
       ->get();
 
     if ($messages->isEmpty()) {
@@ -47,9 +47,9 @@ class MessagesController extends Controller
 
   public function store(Request $request)
   {
-    $validator = Validator::make($request->only('message_content', 'receiver_id'), [
+    $validator = Validator::make($request->only('message_content', 'room_id'), [
       'message_content' => 'required|string',
-      'receiver_id' => 'required|exists:users,id'
+      'room_id' => 'required|exists:rooms,id'
     ]);
 
     if ($validator->fails()) {
@@ -59,7 +59,7 @@ class MessagesController extends Controller
     try {
       $created_message = Message::create([
         'sender_id' => $request->user()->id,
-        'receiver_id' => $request->receiver_id,
+        'room_id' => $request->room_id,
         'content' => $request->message_content
       ]);
 

@@ -36,12 +36,19 @@ class FindFriendsController extends Controller
     try {
       $user = User::where('username', $validator->getData('username'))->first('id');
 
-      $addFriend = DB::table('contacts')->insert([
-        'user_id' => $request->user()->id,
-        'contact_user_id' => $user->id
-      ]);
+      DB::transaction(function () use ($request, $user) {
+        $roomId = DB::table('rooms')->insertGetId([
+          'created_at' => now(),
+          'updated_at' => now(),
+        ]);
 
-      return ResponseHelper::sendResponse(data: $addFriend);
+        DB::table('room_user')->insert([
+          ['room_id' => $roomId, 'user_id' => $request->user()->id, 'status' => 'friend'],
+          ['room_id' => $roomId, 'user_id' => $user->id, 'status' => 'request'],
+        ]);
+
+        return ResponseHelper::sendResponse();
+      });
     } catch (Exception $exception) {
       return ResponseHelper::sendResponse(500, $exception->getMessage());
     }

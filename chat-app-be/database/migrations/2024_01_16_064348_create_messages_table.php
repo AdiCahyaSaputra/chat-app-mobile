@@ -11,12 +11,12 @@ return new class extends Migration
    */
   public function up(): void
   {
-    Schema::create('contacts', function (Blueprint $table) {
+    Schema::create('messages', function (Blueprint $table) {
       $table->id();
-      $table->foreignId('user_id')->references('id')->on('users');
-      $table->foreignId('contact_user_id')->references('id')->on('users');
-      $table->boolean('is_blocked')->default(false);
-      $table->unique(['user_id', 'contact_user_id']);
+      $table->foreignId('sender_id')->references('id')->on('users')->cascadeOnDelete();
+      $table->foreignId('room_id')->references('id')->on('rooms')->cascadeOnDelete();
+      $table->text('content');
+      $table->boolean('is_read')->default(false);
       $table->timestamps();
     });
   }
@@ -26,6 +26,6 @@ return new class extends Migration
    */
   public function down(): void
   {
-    Schema::dropIfExists('contacts');
+    Schema::dropIfExists('messages');
   }
 };

@@ -11,12 +11,11 @@ return new class extends Migration
    */
   public function up(): void
   {
-    Schema::create('messages', function (Blueprint $table) {
+    Schema::create('room_user', function (Blueprint $table) {
       $table->id();
-      $table->foreignId('sender_id')->references('id')->on('users')->cascadeOnDelete();
-      $table->foreignId('receiver_id')->references('id')->on('users')->cascadeOnDelete();
-      $table->text('content');
-      $table->boolean('is_read')->default(false);
+      $table->foreignId('room_id')->references('id')->on('rooms')->cascadeOnDelete();
+      $table->foreignId('user_id')->references('id')->on('users')->cascadeOnDelete();
+      $table->string('status'); // `request` | `friend`
       $table->timestamps();
     });
   }
@@ -26,6 +25,6 @@ return new class extends Migration
    */
   public function down(): void
   {
-    Schema::dropIfExists('messages');
+    Schema::dropIfExists('room_user');
   }
 };

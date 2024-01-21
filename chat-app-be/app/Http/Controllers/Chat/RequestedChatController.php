@@ -4,11 +4,9 @@ namespace App\Http\Controllers\Chat;
 
 use App\Helper\ResponseHelper;
 use App\Http\Controllers\Controller;
-use App\Models\Contact;
-use App\Models\User;
+use App\Models\Room;
 use Exception;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -19,42 +17,71 @@ class RequestedChatController extends Controller
   {
     $userId = $request->user()->id;
 
-    $existingContacts = DB::table('contacts')
-      ->where('contacts.user_id', $userId)->get('id');
+    $allContacts = DB::table('room_user')
+      ->join('rooms', 'rooms.id', 'room_user.room_id')
+      ->join('users', 'users.id', 'room_user.user_id')
+      ->whereIn('room_user.room_id', function (Builder $query) use ($userId) {
+        $query->select('room_id')
+          ->from('room_user')
+          ->where('user_id', $userId); // Get room_id where room_user.user_id is $userId
+      })
+      ->where('rooms.is_blocked', false)
+      ->select(
+        'room_user.room_id',
+        'room_user.status',
+        'users.id as contact_id',
+        'users.name as contact_name',
+        'users.username as contact_username',
+        'users.profile_image_url as contact_profile_image'
+      )
+      ->get();
 
-    if ($existingContacts->isEmpty()) {
-      $contacts = DB::table('contacts')
-        ->join('users', 'contacts.user_id', '=', 'users.id')
-        ->where('contacts.contact_user_id', $userId)
-        ->where('contacts.is_blocked', false)
-        ->select('contacts.id', 'users.id as contact_user_id', 'users.username as contact_username', 'users.name as contact_name', 'users.profile_image_url as contact_profile_image')
-        ->get();
+    $requestedFriends = [];
+    $contactsGroupByRoomID = [];
 
-      $latest_messages = DB::table('contacts')
-        ->leftJoin('messages', function (JoinClause $join) use ($userId) {
-          $join->on('contacts.contact_user_id', '=', 'messages.sender_id')
-            ->orOn('contacts.contact_user_id', '=', 'messages.receiver_id')
-            ->when(function (Builder $query) use ($userId) {
-              $query->where('messages.sender_id', $userId)->orWhere('messages.receiver_id', $userId);
-            });
-        })
-        ->where('contacts.contact_user_id', $userId)
-        ->select('contacts.id', 'messages.content as latest_message', 'messages.created_at as latest_message_timestamp')
-        ->get();
-
-      foreach ($contacts as $contact) {
-        foreach ($latest_messages as $latest_message) {
-          if ($latest_message->id === $contact->id) {
-            $contact->latest_message = $latest_message->latest_message;
-            $contact->latest_message_timestamp = $latest_message->latest_message_timestamp;
-          }
-        }
-      }
-
-      return ResponseHelper::sendResponse(data: $contacts);
+    foreach ($allContacts as $contact) {
+      $contactsGroupByRoomID[$contact->room_id][] = $contact;
     }
 
-    return ResponseHelper::sendResponse(message: 'No requested chat');
+    foreach ($contactsGroupByRoomID as $rooms) {
+      $filteredFriendRooms = collect($rooms)->filter(function ($room) use ($userId) {
+        return $room->status === 'request' && $room->contact_id === $userId;
+      });
+
+      if ($filteredFriendRooms->isNotEmpty()) {
+        foreach ($filteredFriendRooms as $friendRoom) {
+          $requestedFriends[] = collect($rooms)->filter(function ($room) use ($userId, $friendRoom) {
+            return $room->room_id === $friendRoom->room_id && $room->contact_id !== $userId;
+          })->first();
+        }
+      }
+    }
+
+    $messages = DB::table('room_user')
+      ->join('messages', 'messages.room_id', 'room_user.room_id')
+      ->where('room_user.room_id', function (Builder $query) use ($userId) {
+        $query->select('room_id')->from('room_user')->where('user_id', $userId)->first();
+      })
+      ->select(
+        'room_user.room_id',
+        'room_user.user_id',
+        'messages.sender_id',
+        'messages.content',
+        'messages.is_read'
+      )
+      ->orderBy('messages.created_at', 'desc')
+      ->get();
+
+    foreach ($requestedFriends as $contact) {
+      $filteredContact = $messages->filter(function ($message) use ($contact, $userId) {
+        return $message->room_id === $contact->room_id && $message->sender_id !== $userId && $message->user_id !== $userId;
+      });
+
+      $contact->latest_message = $filteredContact->first();
+      $contact->unread_messages = $filteredContact->count();
+    }
+
+    return ResponseHelper::sendResponse(data: $requestedFriends);
   }
 
   public function store(Request $request)
@@ -68,10 +95,16 @@ class RequestedChatController extends Controller
     }
 
     try {
-      $addFriend = DB::table('contacts')->insert([
-        'user_id' => $request->user()->id,
-        'contact_user_id' => $request->contact_user_id
-      ]);
+      $addFriend = DB::table('room_user')
+        ->whereIn('room_user.room_id', function (Builder $query) use ($validator) {
+          $query->select('room_id')
+            ->from('room_user')
+            ->where('user_id', $validator->getData('contact_user_id'));
+        })
+        ->where('room_user.user_id', $request->user()->id)
+        ->update([
+          'status' => 'friend'
+        ]);
 
       return ResponseHelper::sendResponse(data: $addFriend);
     } catch (Exception $exception) {
@@ -79,10 +112,10 @@ class RequestedChatController extends Controller
     }
   }
 
-  public function destroy($contact_id)
+  public function destroy($room_id)
   {
     try {
-      $blocked = Contact::where('id', $contact_id)->update([
+      $blocked = Room::where('id', $room_id)->update([
         'is_blocked' => true
       ]);
 
