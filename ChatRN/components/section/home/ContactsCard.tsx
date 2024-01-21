@@ -7,8 +7,10 @@ import { TContactsData } from '../../../lib/interface/response/IContactsResponse
 import ProfileImage from '../../reusable/global/ProfileImage';
 
 const ContactsCard = ({
+  room_id,
+  status,
+  contact_id,
   contact_name,
-  contact_user_id,
   contact_username,
   contact_profile_image,
   latest_message,
@@ -21,10 +23,13 @@ const ContactsCard = ({
     <TouchableOpacity
       onPress={() =>
         navigation.navigate('Chat/Username', {
-          id: contact_user_id,
-          username: contact_username,
-          name: contact_name,
-          profile_image_url: contact_profile_image,
+          room_id,
+          status,
+          contact_id,
+          contact_name,
+          contact_username,
+          contact_profile_image,
+          unread_messages,
         })
       }
     >
@@ -38,7 +43,9 @@ const ContactsCard = ({
         </View>
         <View className="grow">
           <Text className="font-bold text-white">{contact_name}</Text>
-          <Text className="text-sm">{latest_message ?? 'No chat yet'}</Text>
+          <Text className="text-sm">
+            {latest_message ? latest_message.content : 'No chat yet'}
+          </Text>
         </View>
         {unread_messages > 0 && (
           <View className="py-1 px-2 bg-red-500 flex justify-center items-center rounded-full">

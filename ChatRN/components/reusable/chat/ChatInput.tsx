@@ -7,12 +7,12 @@ import { RootNativeStackParamList } from '../../../App';
 import axios from '../../../lib/helper/axios.helper';
 
 type TProps = {
-  setRefetch: (value: React.SetStateAction<boolean>) => void;
-  receiver_id: number;
+  setRefetch: (value: boolean) => void;
+  room_id: number;
   refetch: boolean;
 };
 
-const ChatInput = ({ setRefetch, receiver_id, refetch }: TProps) => {
+const ChatInput = ({ setRefetch, room_id, refetch }: TProps) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootNativeStackParamList>>();
 
@@ -38,7 +38,7 @@ const ChatInput = ({ setRefetch, receiver_id, refetch }: TProps) => {
         '/api/v1/chat/message',
         {
           message_content: input,
-          receiver_id,
+          room_id,
         },
         {
           headers: {

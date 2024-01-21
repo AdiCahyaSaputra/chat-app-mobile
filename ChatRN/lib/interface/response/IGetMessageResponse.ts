@@ -5,8 +5,11 @@ export default interface IGetMessageResponse extends IBaseResponse {
 }
 
 export type TGetMessageData = {
+  room_id: number;
+  is_blocked: boolean;
   sender: string;
-  message: string;
+  message_id: number;
+  content: string;
   date: string;
   profile_image_url: string | null;
 };

@@ -2,13 +2,7 @@ import { View, Text } from 'react-native';
 import React from 'react';
 import { useUserStore } from '../../../lib/zustand/userStore';
 import ProfileImage from '../global/ProfileImage';
-
-type Props = {
-  sender: string;
-  message: string;
-  date: string;
-  profile_image_url: string | null;
-};
+import { TGetMessageData } from '../../../lib/interface/response/IGetMessageResponse';
 
 const colorClass = { me: 'bg-white/30', other: 'bg-white/10' };
 const alignClass = { me: 'self-end', other: 'self-start' };
@@ -35,7 +29,15 @@ const messageBubbleClass = (sender: string, current_user: string) =>
   ' ' +
   getSenderClass(sender, current_user, roundedClass);
 
-const MessageBubble = ({ sender, message, date, profile_image_url }: Props) => {
+const MessageBubble = ({
+  room_id,
+  is_blocked,
+  sender,
+  message_id,
+  content,
+  date,
+  profile_image_url,
+}: TGetMessageData) => {
   const user = useUserStore(state => state.user);
   const current_user = `@${user?.username}`;
 
@@ -64,7 +66,7 @@ const MessageBubble = ({ sender, message, date, profile_image_url }: Props) => {
         <View
           className={`py-2 px-4 ${messageBubbleClass(sender, current_user)}`}
         >
-          <Text>{message}</Text>
+          <Text>{content}</Text>
         </View>
         <Text
           className={`text-xs mt-2 ${getSenderClass(

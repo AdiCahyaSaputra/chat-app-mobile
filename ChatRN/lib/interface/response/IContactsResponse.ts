@@ -5,12 +5,18 @@ export default interface IContactsResponse extends IBaseResponse {
 }
 
 export type TContactsData = {
-  id: number;
-  contact_user_id: number;
-  contact_username: string;
+  room_id: number;
+  status: 'request' | 'friend';
+  contact_id: number;
   contact_name: string;
+  contact_username: string;
   contact_profile_image: string | null;
-  latest_message: string | null;
-  latest_message_timestamp: string | null;
+  latest_message: {
+    room_id: number;
+    user_id: number;
+    sender_id: number;
+    content: string;
+    is_read: boolean;
+  } | null;
   unread_messages: number;
 };

@@ -12,8 +12,8 @@ import { useNotificationStore } from '../../../lib/zustand/notificationStore';
 import { useUserStore } from '../../../lib/zustand/userStore';
 
 const ChatCard = ({
-  id,
-  contact_user_id,
+  room_id,
+  contact_id,
   contact_name,
   contact_profile_image,
   latest_message,
@@ -41,7 +41,7 @@ const ChatCard = ({
       const response = await axios.post(
         '/api/v1/chat/request/accept',
         {
-          contact_user_id,
+          contact_user_id: contact_id,
         },
         {
           headers: {
@@ -74,7 +74,7 @@ const ChatCard = ({
       }
 
       const response = await axios.post(
-        '/api/v1/chat/request/block/' + id,
+        '/api/v1/chat/request/block/' + room_id,
         {},
         {
           headers: {
@@ -107,7 +107,9 @@ const ChatCard = ({
         </View>
         <View className="grow">
           <Text className="font-bold text-white">{contact_name}</Text>
-          <Text className="text-sm">{latest_message ?? 'No chat yet'}</Text>
+          <Text className="text-sm">
+            {latest_message ? latest_message.content : 'No chat yet'}
+          </Text>
         </View>
         <View className="flex flex-row items-center space-x-2">
           <TouchableOpacity

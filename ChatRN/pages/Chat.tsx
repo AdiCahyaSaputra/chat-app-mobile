@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import NavbarChat from '../components/reusable/chat/NavbarChat';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootNativeStackParamList } from '../App';
-import { FlatList } from 'react-native';
+import { FlatList, StyleProp, ViewStyle } from 'react-native';
 import MessageBubble from '../components/reusable/chat/MessageBubble';
 import ChatInput from '../components/reusable/chat/ChatInput';
 import { TGetMessageData } from '../lib/interface/response/IGetMessageResponse';
@@ -29,7 +29,7 @@ const Chat = ({
         }
 
         const response = await axios.get(
-          `/api/v1/chat/message/${route.params.id}`,
+          `/api/v1/chat/message/${route.params.room_id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -50,9 +50,9 @@ const Chat = ({
   return (
     <SafeAreaView className="flex-1 dark:bg-black">
       <NavbarChat
-        username={route.params.username}
-        name={route.params.name}
-        profileImageUrl={route.params.profile_image_url}
+        username={route.params.contact_username}
+        name={route.params.contact_name}
+        profileImageUrl={route.params.contact_profile_image}
       />
 
       <FlatList
@@ -66,14 +66,14 @@ const Chat = ({
 
       <ChatInput
         setRefetch={setRefetch}
-        receiver_id={route.params.id}
+        room_id={route.params.room_id}
         refetch={refetch}
       />
     </SafeAreaView>
   );
 };
 
-const containerStyle = {
+const containerStyle: StyleProp<ViewStyle> = {
   gap: 10,
   flexDirection: 'column-reverse',
 };

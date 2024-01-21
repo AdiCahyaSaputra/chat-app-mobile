@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Search from './pages/Search';
 import Notification from './pages/Notification';
+import { TContactsData } from './lib/interface/response/IContactsResponse';
 
 export type RootNativeStackParamList = {
   Login: undefined;
@@ -18,12 +19,7 @@ export type RootNativeStackParamList = {
   Profile: undefined;
   Search: undefined;
   Notification: undefined;
-  'Chat/Username': {
-    id: number;
-    username: string;
-    name: string;
-    profile_image_url: string | null;
-  };
+  'Chat/Username': Omit<TContactsData, 'latest_message'>;
 };
 
 const Stack = createNativeStackNavigator<RootNativeStackParamList>();
