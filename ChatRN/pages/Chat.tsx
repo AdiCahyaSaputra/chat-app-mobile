@@ -20,30 +20,6 @@ const Chat = ({
   );
 
   useEffect(() => {
-    const readAllMessage = async () => {
-      try {
-        const token = await RNSecureStorage.getItem('token');
-
-        if (!token) {
-          return navigation.push('Login');
-        }
-
-        const response = await axios.put(
-          `/api/v1/chat/message/${route.params.room_id}`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        console.log(response.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
     const getMessages = async () => {
       try {
         const token = await RNSecureStorage.getItem('token');
@@ -68,7 +44,6 @@ const Chat = ({
       }
     };
 
-    readAllMessage();
     getMessages();
   }, [route.params.username, refetch]);
 

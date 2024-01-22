@@ -5,6 +5,8 @@ import { RootNativeStackParamList } from '../../../App';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TContactsData } from '../../../lib/interface/response/IContactsResponse';
 import ProfileImage from '../../reusable/global/ProfileImage';
+import RNSecureStorage from 'rn-secure-storage';
+import axios from '../../../lib/helper/axios.helper';
 
 const ContactsCard = ({
   room_id,
@@ -19,9 +21,34 @@ const ContactsCard = ({
   const navigation =
     useNavigation<NativeStackNavigationProp<RootNativeStackParamList>>();
 
+  const readAllMessage = async () => {
+    try {
+      const token = await RNSecureStorage.getItem('token');
+
+      if (!token) {
+        return navigation.push('Login');
+      }
+
+      const response = await axios.put(
+        `/api/v1/chat/message/${room_id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      console.log(response.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <TouchableOpacity
-      onPress={() =>
+      onPress={() => {
+        readAllMessage();
         navigation.navigate('Chat/Username', {
           room_id,
           status,
@@ -30,8 +57,8 @@ const ContactsCard = ({
           contact_username,
           contact_profile_image,
           unread_messages,
-        })
-      }
+        });
+      }}
     >
       <View className="flex flex-row items-center gap-4">
         <View className="rounded-md overflow-hidden">
